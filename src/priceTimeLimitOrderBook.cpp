@@ -97,9 +97,6 @@ void PriceTimeLimitOrderBook::processInputFile(std::string filePath)
 
 void PriceTimeLimitOrderBook::processInputLine(std::string inputLine)
 {
-    // TODO: test for invalid input.
-    // TODO: Add gtest for this function.
-
     // Split line with comma delimiter.
 
     std::stringstream streamLine(inputLine);
@@ -112,8 +109,6 @@ void PriceTimeLimitOrderBook::processInputLine(std::string inputLine)
         getline(streamLine, subStringBuffer, ',');
 
         inputParameters.push_back(subStringBuffer);
-
-        // std::cout<<subStringBuffer<<std::endl;
     }
 
     // Error Handling
@@ -144,7 +139,8 @@ void PriceTimeLimitOrderBook::processInputLine(std::string inputLine)
         }
         else
         {
-            std::cerr << "Added input neither ASK or BID but {" << inputParameters[2] << "}\n";
+            std::cerr << "Added input neither ASK or BID but {" << inputParameters[2] << "}. Input skipped.\n";
+            return;
         }
     }
     else if (inputParameters[0] == "X")
@@ -155,7 +151,8 @@ void PriceTimeLimitOrderBook::processInputLine(std::string inputLine)
     }
     else
     {
-        std::cerr << "Order input neither Adding or Deleting but {" << inputParameters[0] << "}\n";
+        std::cerr << "Order input neither Adding or Deleting but {" << inputParameters[0] << "}. Input skipped.\n";
+        return;
     }
 }
 
@@ -179,16 +176,12 @@ void PriceTimeLimitOrderBook::inputNewBid(std::vector<std::string> inputParamete
         newOrder->prev = lastOrder;
         lastBidAtPrice[bidPrice] = newOrder;
 
-        // std::cout<<"Attached " <<newOrder->orderId<< " B price: "<<newOrder->price<<std::endl;
-
         return;
     }
     else
     {
         // Check if there is a match. 
         
-        std::cout<<newOrder->price <<" " << newOrder->quantity << std::endl;
-
         while(!askPool.empty() && newOrder->price >= askPool.top().first && newOrder->quantity > 0)
         {
             OrderNode* currentOrder = askPool.top().second->next;
@@ -196,7 +189,6 @@ void PriceTimeLimitOrderBook::inputNewBid(std::vector<std::string> inputParamete
             if(currentOrder == nullptr)
                 break;
 
-            std::cout<<newOrder->price <<" " << newOrder->quantity << std::endl;
 
             if(currentOrder->quantity == newOrder->quantity)
             {
@@ -219,8 +211,8 @@ void PriceTimeLimitOrderBook::inputNewBid(std::vector<std::string> inputParamete
                 inputNewDeleteOrder(currentOrder->orderId);
                 newOrder->quantity -= currentOrder->quantity;
                 
-                // currentOrder = askPool.top().second->next;
-                // go to next listnode in same price bracket.
+                // Loop through the rest of the OrderNodes at the same price.
+
                 while (currentOrder != nullptr)
                 {
 
@@ -252,9 +244,7 @@ void PriceTimeLimitOrderBook::inputNewBid(std::vector<std::string> inputParamete
                 }
             }
 
-            std::cout<<newOrder->price <<" " << newOrder->quantity << std::endl;
-
-            // All orders fulfilled at this price bracket. Remove.
+            // All orders fulfilled at this price bucket. Remove.
 
             if (askPool.top().second->next == nullptr)
             {
@@ -271,14 +261,11 @@ void PriceTimeLimitOrderBook::inputNewBid(std::vector<std::string> inputParamete
 
         if(newOrder->quantity > 0)
         {
-            std::cout<<"Added " <<newOrder->quantity<< " B price: "<<newOrder->price<<std::endl;
-
             OrderNode* emptyHead = new OrderNode();
 
             bidPool.push(std::make_pair(bidPrice, emptyHead));
             emptyHead->next = newOrder;
             newOrder->prev = emptyHead;
-            
 
             lastBidAtPrice[bidPrice] = newOrder;
         }
@@ -307,22 +294,14 @@ void PriceTimeLimitOrderBook::inputNewAsk(std::vector<std::string> inputParamete
 
         lastAskAtPrice[askPrice] = newOrder;
 
-        // std::cout<<"Attached " <<newOrder->orderId<< " S price: "<<newOrder->price<<std::endl;
-
         return;
     }
     else
     {
         // Check if there is a match.
-
-        // Check if there is a match. 
         
-        // std::cout<<newOrder->price <<" " << newOrder->quantity << std::endl;
-
         while(!bidPool.empty() && newOrder->price <= bidPool.top().first && newOrder->quantity > 0)
         {
-            std::cout<<"Start "<<newOrder->price <<" " << newOrder->quantity << std::endl;
-
             OrderNode* currentOrder = bidPool.top().second->next;
 
             if(currentOrder == nullptr)
@@ -350,13 +329,10 @@ void PriceTimeLimitOrderBook::inputNewAsk(std::vector<std::string> inputParamete
                 inputNewDeleteOrder(currentOrder->orderId);
                 newOrder->quantity -= currentOrder->quantity;
                 
-                // currentOrder = bidPool.top().second->next;
-                // go to next listnode in same price bracket.
+                // Loop through the rest of the OrderNodes at the same price.
+
                 while (currentOrder != nullptr)
                 {
-
-                    std::cout<<"Inner "<<newOrder->price <<" " << newOrder->quantity << std::endl;
-
                     currentOrder = bidPool.top().second->next;
                     
                     if(currentOrder == nullptr)
@@ -386,7 +362,7 @@ void PriceTimeLimitOrderBook::inputNewAsk(std::vector<std::string> inputParamete
             }
 
 
-            // All orders fulfilled at this price bracket. Remove.
+            // All orders fulfilled at this price bucket. Remove this price bucket.
 
             if (bidPool.top().second->next == nullptr)
             {
@@ -396,7 +372,6 @@ void PriceTimeLimitOrderBook::inputNewAsk(std::vector<std::string> inputParamete
                     break;
             }
 
-            std::cout<<"End "<<newOrder->price <<" " << newOrder->quantity << std::endl;
         }
 
         // Log remaining orders.
@@ -428,11 +403,11 @@ void PriceTimeLimitOrderBook::inputNewDeleteOrder(std::string orderId)
     }
     else
     {
-        std::cerr << "Could not find order to delete: orderID {" << orderId << "}\n";
+        std::cerr << "Could not find order to delete: orderID {" << orderId << "}, Order may have already been processed.\n";
         return;
     }
 
-    // // Relink next node.
+    // Relink next node.
 
     if (orderNode->next != NULL)
     {
@@ -445,10 +420,6 @@ void PriceTimeLimitOrderBook::inputNewDeleteOrder(std::string orderId)
     {
         orderNode->prev->next = orderNode->next;
     }
-
-    // // Delete hash row, free linkNode
-
-    // std::cout<< "Deleted " << orderNode->orderId  << std::endl;
 
     orderNodeDirectory.erase(orderId);
 
