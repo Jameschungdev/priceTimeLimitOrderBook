@@ -189,7 +189,7 @@ void PriceTimeLimitOrderBook::inputNewBid(std::vector<std::string> inputParamete
         
         std::cout<<newOrder->price <<" " << newOrder->quantity << std::endl;
 
-        while(!askPool.empty() && newOrder->price > askPool.top().first && newOrder->quantity > 0)
+        while(!askPool.empty() && newOrder->price >= askPool.top().first && newOrder->quantity > 0)
         {
             OrderNode* currentOrder = askPool.top().second->next;
 
@@ -208,7 +208,7 @@ void PriceTimeLimitOrderBook::inputNewBid(std::vector<std::string> inputParamete
             }
             else if (currentOrder->quantity > newOrder->quantity)
             {
-                std::cout << newOrder->quantity << " share of XYZ were sold at " << newOrder->price << " USD\n";
+                std::cout << newOrder->quantity << " share of XYZ were sold at " << currentOrder->price << " USD\n";
                 currentOrder->quantity -= newOrder->quantity;
                 newOrder->quantity = 0;
                 break;
@@ -223,11 +223,12 @@ void PriceTimeLimitOrderBook::inputNewBid(std::vector<std::string> inputParamete
                 // go to next listnode in same price bracket.
                 while (currentOrder != nullptr)
                 {
-                    if(currentOrder == nullptr)
-                        break;
 
                     currentOrder = askPool.top().second->next;
-                    
+
+                    if (currentOrder == nullptr)
+                        break;
+
                     if (currentOrder->quantity == newOrder->quantity)
                     {
                         std::cout << currentOrder->quantity << " share of XYZ were sold at " << currentOrder->price << " USD\n";
@@ -237,7 +238,7 @@ void PriceTimeLimitOrderBook::inputNewBid(std::vector<std::string> inputParamete
                     }
                     else if (currentOrder->quantity > newOrder->quantity)
                     {
-                        std::cout << newOrder->quantity << " share of XYZ were sold at " << newOrder->price << " USD\n";
+                        std::cout << newOrder->quantity << " share of XYZ were sold at " << currentOrder->price << " USD\n";
                         currentOrder->quantity -= newOrder->quantity;
                         newOrder->quantity = 0;
                         break;
@@ -270,13 +271,14 @@ void PriceTimeLimitOrderBook::inputNewBid(std::vector<std::string> inputParamete
 
         if(newOrder->quantity > 0)
         {
-            // std::cout<<"Added " <<newOrder->orderId<< " B price: "<<newOrder->price<<std::endl;
+            std::cout<<"Added " <<newOrder->quantity<< " B price: "<<newOrder->price<<std::endl;
 
             OrderNode* emptyHead = new OrderNode();
 
             bidPool.push(std::make_pair(bidPrice, emptyHead));
             emptyHead->next = newOrder;
             newOrder->prev = emptyHead;
+            
 
             lastBidAtPrice[bidPrice] = newOrder;
         }
@@ -315,16 +317,17 @@ void PriceTimeLimitOrderBook::inputNewAsk(std::vector<std::string> inputParamete
 
         // Check if there is a match. 
         
-        std::cout<<newOrder->price <<" " << newOrder->quantity << std::endl;
+        // std::cout<<newOrder->price <<" " << newOrder->quantity << std::endl;
 
-        while(!bidPool.empty() && newOrder->price > bidPool.top().first && newOrder->quantity > 0)
+        while(!bidPool.empty() && newOrder->price <= bidPool.top().first && newOrder->quantity > 0)
         {
+            std::cout<<"Start "<<newOrder->price <<" " << newOrder->quantity << std::endl;
+
             OrderNode* currentOrder = bidPool.top().second->next;
 
             if(currentOrder == nullptr)
                 break;
 
-            std::cout<<newOrder->price <<" " << newOrder->quantity << std::endl;
 
             if(currentOrder->quantity == newOrder->quantity)
             {
@@ -336,7 +339,7 @@ void PriceTimeLimitOrderBook::inputNewAsk(std::vector<std::string> inputParamete
             }
             else if (currentOrder->quantity > newOrder->quantity)
             {
-                std::cout << newOrder->quantity << " share of XYZ were brought at " << newOrder->price << " USD\n";
+                std::cout << newOrder->quantity << " share of XYZ were brought at " << currentOrder->price << " USD\n";
                 currentOrder->quantity -= newOrder->quantity;
                 newOrder->quantity = 0;
                 break;
@@ -351,35 +354,37 @@ void PriceTimeLimitOrderBook::inputNewAsk(std::vector<std::string> inputParamete
                 // go to next listnode in same price bracket.
                 while (currentOrder != nullptr)
                 {
+
+                    std::cout<<"Inner "<<newOrder->price <<" " << newOrder->quantity << std::endl;
+
+                    currentOrder = bidPool.top().second->next;
+                    
                     if(currentOrder == nullptr)
                         break;
 
-                    currentOrder = askPool.top().second->next;
-                    
                     if (currentOrder->quantity == newOrder->quantity)
                     {
-                        std::cout << currentOrder->quantity << " share of XYZ were sold at " << currentOrder->price << " USD\n";
+                        std::cout << currentOrder->quantity << " share of XYZ were brought at " << currentOrder->price << " USD\n";
                         inputNewDeleteOrder(currentOrder->orderId);
                         newOrder->quantity = 0;
                         break;
                     }
                     else if (currentOrder->quantity > newOrder->quantity)
                     {
-                        std::cout << newOrder->quantity << " share of XYZ were sold at " << newOrder->price << " USD\n";
+                        std::cout << newOrder->quantity << " share of XYZ were brought at " << currentOrder->price << " USD\n";
                         currentOrder->quantity -= newOrder->quantity;
                         newOrder->quantity = 0;
                         break;
                     }
                     else if (currentOrder->quantity < newOrder->quantity)
                     {
-                        std::cout << currentOrder->quantity << " share of XYZ were sold at " << currentOrder->price << " USD\n";
+                        std::cout << currentOrder->quantity << " share of XYZ were brought at " << currentOrder->price << " USD\n";
                         inputNewDeleteOrder(currentOrder->orderId);
                         newOrder->quantity -= currentOrder->quantity;
                     }
                 }
             }
 
-            std::cout<<newOrder->price <<" " << newOrder->quantity << std::endl;
 
             // All orders fulfilled at this price bracket. Remove.
 
@@ -390,6 +395,8 @@ void PriceTimeLimitOrderBook::inputNewAsk(std::vector<std::string> inputParamete
                 if(bidPool.empty())
                     break;
             }
+
+            std::cout<<"End "<<newOrder->price <<" " << newOrder->quantity << std::endl;
         }
 
         // Log remaining orders.

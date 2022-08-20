@@ -36,8 +36,8 @@ class OrderNode
         int quantity;
         double price;
 
-        OrderNode* next;
-        OrderNode* prev;
+        OrderNode* next = nullptr;
+        OrderNode* prev = nullptr;
 };
 
 
