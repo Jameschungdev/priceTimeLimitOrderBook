@@ -16,17 +16,20 @@ PriceTimeLimitOrderBook::~PriceTimeLimitOrderBook()
         std::vector<std::string> askLogs;
         while(!askPool.empty())
         {
-            std::string logsForAPrice = std::to_string(askPool.top().first) + ": ";
 
             OrderNode* log = askPool.top().second->next;
 
-            while(log != nullptr)
+            if(log != nullptr)
             {
-                logsForAPrice += std::to_string(log->quantity) + ' ';
-                log = log->next;
-            }
+                std::string logsForAPrice = std::to_string(askPool.top().first) + ": ";
+                while(log != nullptr)
+                {
+                    logsForAPrice += std::to_string(log->quantity) + ' ';
+                    log = log->next;
+                }
 
-            askLogs.push_back(logsForAPrice);
+                askLogs.push_back(logsForAPrice);
+            }
 
             askPool.pop();
         }
@@ -47,17 +50,23 @@ PriceTimeLimitOrderBook::~PriceTimeLimitOrderBook()
         std::vector<std::string> bidLogs;
         while(!bidPool.empty())
         {
-            std::string logsForAPrice = std::to_string(bidPool.top().first) + ": ";
 
             OrderNode* log = bidPool.top().second->next;
 
-            while(log != nullptr)
+            if(log != nullptr)
             {
-                logsForAPrice += std::to_string(log->quantity) + ' ';
-                log = log->next;
+                std::string logsForAPrice = std::to_string(bidPool.top().first) + ": ";
+
+                while(log != nullptr)
+                {
+                    logsForAPrice += std::to_string(log->quantity) + ' ';
+                    log = log->next;
+                }
+
+                bidLogs.push_back(logsForAPrice);
+
             }
 
-            bidLogs.push_back(logsForAPrice);
 
             bidPool.pop();
         }
