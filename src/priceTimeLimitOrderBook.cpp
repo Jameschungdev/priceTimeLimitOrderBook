@@ -7,78 +7,7 @@ PriceTimeLimitOrderBook::PriceTimeLimitOrderBook()
 
 PriceTimeLimitOrderBook::~PriceTimeLimitOrderBook()
 {
-    // Output state of logbook.
-
-    std::cout<< "=================\n\nASK\n\n";
-
-    if (!askPool.empty())
-    {   
-        std::vector<std::string> askLogs;
-        while(!askPool.empty())
-        {
-
-            OrderNode* log = askPool.top().second->next;
-
-            if(log != nullptr)
-            {
-                std::string logsForAPrice = std::to_string(askPool.top().first) + ": ";
-                while(log != nullptr)
-                {
-                    logsForAPrice += std::to_string(log->quantity) + ' ';
-                    log = log->next;
-                }
-
-                askLogs.push_back(logsForAPrice);
-            }
-
-            askPool.pop();
-        }
-
-        for(int i = askLogs.size()-1; i>=0; i--)
-        {
-            std::cout<< askLogs[i] << "\n\n";
-        }
-    }
-
-
-
-    std::cout<< "------------\n\n";
-
-
-    if (!bidPool.empty())
-    {   
-        std::vector<std::string> bidLogs;
-        while(!bidPool.empty())
-        {
-
-            OrderNode* log = bidPool.top().second->next;
-
-            if(log != nullptr)
-            {
-                std::string logsForAPrice = std::to_string(bidPool.top().first) + ": ";
-
-                while(log != nullptr)
-                {
-                    logsForAPrice += std::to_string(log->quantity) + ' ';
-                    log = log->next;
-                }
-
-                bidLogs.push_back(logsForAPrice);
-
-            }
-
-
-            bidPool.pop();
-        }
-
-        for(int i = 0; i<bidLogs.size(); i++)
-        {
-            std::cout<< bidLogs[i] << "\n\n";
-        }
-    }
-
-    std::cout<< "BID\n\n=================" <<std::endl;
-
+    displayFinalState();
 }
 
 // Processes an input file line by line.
@@ -120,8 +49,8 @@ void PriceTimeLimitOrderBook::processInputLine(std::string inputLine)
     }
 
     // TODO: Add for error handlers
+    // TODO: GTest for main functions.
     /**
-     *  Each input is A/B
      *  Valid numbers
      * **/
 
@@ -426,4 +355,79 @@ void PriceTimeLimitOrderBook::inputNewDeleteOrder(std::string orderId)
     free(orderNode);
 
     return;
+}
+
+void PriceTimeLimitOrderBook::displayFinalState()
+{
+    // Output state of logbook.
+
+    std::cout<< "=================\n\nASK\n\n";
+
+    if (!askPool.empty())
+    {   
+        std::vector<std::string> askLogs;
+        while(!askPool.empty())
+        {
+
+            OrderNode* log = askPool.top().second->next;
+
+            if(log != nullptr)
+            {
+                std::string logsForAPrice = std::to_string(askPool.top().first) + ": ";
+                while(log != nullptr)
+                {
+                    logsForAPrice += std::to_string(log->quantity) + ' ';
+                    log = log->next;
+                }
+
+                askLogs.push_back(logsForAPrice);
+            }
+
+            askPool.pop();
+        }
+
+        for(int i = askLogs.size()-1; i>=0; i--)
+        {
+            std::cout<< askLogs[i] << "\n\n";
+        }
+    }
+
+
+
+    std::cout<< "------------\n\n";
+
+
+    if (!bidPool.empty())
+    {   
+        std::vector<std::string> bidLogs;
+        while(!bidPool.empty())
+        {
+
+            OrderNode* log = bidPool.top().second->next;
+
+            if(log != nullptr)
+            {
+                std::string logsForAPrice = std::to_string(bidPool.top().first) + ": ";
+
+                while(log != nullptr)
+                {
+                    logsForAPrice += std::to_string(log->quantity) + ' ';
+                    log = log->next;
+                }
+
+                bidLogs.push_back(logsForAPrice);
+
+            }
+
+
+            bidPool.pop();
+        }
+
+        for(int i = 0; i<bidLogs.size(); i++)
+        {
+            std::cout<< bidLogs[i] << "\n\n";
+        }
+    }
+
+    std::cout<< "BID\n\n=================" <<std::endl;
 }

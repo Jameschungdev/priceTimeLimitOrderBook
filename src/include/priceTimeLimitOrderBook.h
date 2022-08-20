@@ -56,7 +56,6 @@ private:
     void inputNewDeleteOrder(std::string orderId);
 
     std::unordered_map<std::string, OrderNode*> orderNodeDirectory; // Used for deletion.
-    
 
     // MaxHeap for the highest price for Bids.
 
@@ -68,6 +67,8 @@ private:
     std::priority_queue<std::pair<int, OrderNode*>, std::vector<std::pair<int, OrderNode*>>,
                         std::greater<std::pair<int, OrderNode*>>> askPool; 
     std::unordered_map<int, OrderNode*> lastAskAtPrice;
+
+    void displayFinalState();
 
     
 };
