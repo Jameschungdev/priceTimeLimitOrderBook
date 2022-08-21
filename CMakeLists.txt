@@ -16,6 +16,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/src/include
         )
 
+
+# GTest
+
 include(FetchContent)
 FetchContent_Declare(
         googletest
@@ -31,11 +34,16 @@ file(GLOB SRCS_TESTS ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp)
 add_executable(
         hello_test
         ${SRCS_TESTS}
+        ${SRCS}
 )
 target_link_libraries(
         hello_test
         GTest::gtest_main
 )
+
+target_include_directories(hello_test PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/include
+        )
 
 
 include(GoogleTest)

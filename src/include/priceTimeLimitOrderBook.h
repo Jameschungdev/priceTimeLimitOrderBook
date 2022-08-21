@@ -47,6 +47,15 @@ public:
     void processInputFile(std::string filePath);
     void processInputLine(std::string inputLine); // test for false input
 
+    void displayFinalState();
+
+    int getNumberOfWaitingBids();
+    int getNumberOfWaitingAsks();
+    int getSpread();
+    int getFirstBidOrderQuantityAtPrice(int price);
+    int getFirstAskOrderQuantityAtPrice(int price);
+
+
 private:
     void inputNewBid(std::vector<std::string> inputParameters);
     void inputNewAsk(std::vector<std::string> inputParameters);
@@ -65,6 +74,5 @@ private:
                         std::greater<std::pair<int, std::shared_ptr<OrderNode>>>> askPool; 
     std::unordered_map<int, std::shared_ptr<OrderNode>> lastAskAtPrice;
 
-    void displayFinalState();
     
 };
