@@ -15,3 +15,29 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/src/include
         )
+
+include(FetchContent)
+FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG release-1.12.1
+)
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
+
+file(GLOB SRCS_TESTS ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp)
+
+add_executable(
+        hello_test
+        ${SRCS_TESTS}
+)
+target_link_libraries(
+        hello_test
+        GTest::gtest_main
+)
+
+
+include(GoogleTest)
+gtest_discover_tests(hello_test)
+        
