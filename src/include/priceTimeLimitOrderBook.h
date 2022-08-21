@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <list>
 #include <queue>
+#include <memory>
 
 // Doubly linked List
 
@@ -34,10 +35,10 @@ class OrderNode
         char bidOrAsk; 
         std::string orderId;
         int quantity;
-        double price;
+        int price;
 
-        OrderNode* next = nullptr;
-        OrderNode* prev = nullptr;
+        std::shared_ptr<OrderNode> next = nullptr;
+        std::shared_ptr<OrderNode> prev = nullptr;
 };
 
 
@@ -55,18 +56,18 @@ private:
     void inputNewAsk(std::vector<std::string> inputParameters);
     void inputNewDeleteOrder(std::string orderId);
 
-    std::unordered_map<std::string, OrderNode*> orderNodeDirectory; // Used for deletion.
+    std::unordered_map<std::string, std::shared_ptr<OrderNode>> orderNodeDirectory; // Used for deletion.
 
     // MaxHeap for the highest price for Bids.
 
-    std::priority_queue<std::pair<int, OrderNode*>> bidPool; 
-    std::unordered_map<int, OrderNode*> lastBidAtPrice;
+    std::priority_queue<std::pair<int, std::shared_ptr<OrderNode>>> bidPool; 
+    std::unordered_map<int, std::shared_ptr<OrderNode>> lastBidAtPrice;
 
     // MinHeap for the lowest price for Asks.
 
-    std::priority_queue<std::pair<int, OrderNode*>, std::vector<std::pair<int, OrderNode*>>,
-                        std::greater<std::pair<int, OrderNode*>>> askPool; 
-    std::unordered_map<int, OrderNode*> lastAskAtPrice;
+    std::priority_queue<std::pair<int, std::shared_ptr<OrderNode>>, std::vector<std::pair<int, std::shared_ptr<OrderNode>>>,
+                        std::greater<std::pair<int, std::shared_ptr<OrderNode>>>> askPool; 
+    std::unordered_map<int, std::shared_ptr<OrderNode>> lastAskAtPrice;
 
     void displayFinalState();
 

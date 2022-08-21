@@ -93,14 +93,15 @@ void PriceTimeLimitOrderBook::inputNewBid(std::vector<std::string> inputParamete
     int quantity = stoi(inputParameters[3]);
     std::string orderId = inputParameters[1];
 
-    OrderNode *newOrder = new OrderNode('B', orderId, quantity, bidPrice);
+    std::shared_ptr<OrderNode> newOrder(new OrderNode('B', orderId, quantity, bidPrice));
+    
     orderNodeDirectory[orderId] = newOrder;
 
     if (lastBidAtPrice.find(bidPrice) != lastBidAtPrice.end())
     {
         // This means there are waiting orders waiting. Add this order at end of queue and exit.
 
-        OrderNode *lastOrder = lastBidAtPrice[bidPrice];
+        std::shared_ptr<OrderNode> lastOrder = lastBidAtPrice[bidPrice];
         lastOrder->next = newOrder;
         newOrder->prev = lastOrder;
         lastBidAtPrice[bidPrice] = newOrder;
@@ -113,7 +114,7 @@ void PriceTimeLimitOrderBook::inputNewBid(std::vector<std::string> inputParamete
         
         while(!askPool.empty() && newOrder->price >= askPool.top().first && newOrder->quantity > 0)
         {
-            OrderNode* currentOrder = askPool.top().second->next;
+            std::shared_ptr<OrderNode> currentOrder = askPool.top().second->next;
 
             if(currentOrder == nullptr)
                 break;
@@ -190,7 +191,7 @@ void PriceTimeLimitOrderBook::inputNewBid(std::vector<std::string> inputParamete
 
         if(newOrder->quantity > 0)
         {
-            OrderNode* emptyHead = new OrderNode();
+            std::shared_ptr<OrderNode> emptyHead(new OrderNode);
 
             bidPool.push(std::make_pair(bidPrice, emptyHead));
             emptyHead->next = newOrder;
@@ -210,14 +211,15 @@ void PriceTimeLimitOrderBook::inputNewAsk(std::vector<std::string> inputParamete
     int quantity = stoi(inputParameters[3]);
     std::string orderId = inputParameters[1];
 
-    OrderNode *newOrder = new OrderNode('S', orderId, quantity, askPrice);
+    std::shared_ptr<OrderNode> newOrder(new OrderNode('S', orderId, quantity, askPrice));
+
     orderNodeDirectory[orderId] = newOrder;
 
     if (lastAskAtPrice.find(askPrice) != lastAskAtPrice.end())
     {
         // This means there are waiting orders waiting. Add this order at end of queue and exit.
 
-        OrderNode *lastOrder = lastAskAtPrice[askPrice];
+        std::shared_ptr<OrderNode> lastOrder = lastAskAtPrice[askPrice];
         lastOrder->next = newOrder;
         newOrder->prev = lastOrder;
 
@@ -231,7 +233,7 @@ void PriceTimeLimitOrderBook::inputNewAsk(std::vector<std::string> inputParamete
         
         while(!bidPool.empty() && newOrder->price <= bidPool.top().first && newOrder->quantity > 0)
         {
-            OrderNode* currentOrder = bidPool.top().second->next;
+            std::shared_ptr<OrderNode> currentOrder = bidPool.top().second->next;
 
             if(currentOrder == nullptr)
                 break;
@@ -309,7 +311,7 @@ void PriceTimeLimitOrderBook::inputNewAsk(std::vector<std::string> inputParamete
         {
             // std::cout<<"Added " <<newOrder->orderId<< " S price: "<<newOrder->price<<std::endl;
 
-            OrderNode* emptyHead = new OrderNode();
+            std::shared_ptr<OrderNode> emptyHead (new OrderNode);
 
             askPool.push(std::make_pair(askPrice, emptyHead));
             emptyHead->next = newOrder;
@@ -324,7 +326,7 @@ void PriceTimeLimitOrderBook::inputNewAsk(std::vector<std::string> inputParamete
 
 void PriceTimeLimitOrderBook::inputNewDeleteOrder(std::string orderId)
 {
-    OrderNode *orderNode;
+    std::shared_ptr<OrderNode> orderNode;
 
     if (orderNodeDirectory.find(orderId) != orderNodeDirectory.end())
     {
@@ -352,8 +354,6 @@ void PriceTimeLimitOrderBook::inputNewDeleteOrder(std::string orderId)
 
     orderNodeDirectory.erase(orderId);
 
-    free(orderNode);
-
     return;
 }
 
@@ -369,7 +369,7 @@ void PriceTimeLimitOrderBook::displayFinalState()
         while(!askPool.empty())
         {
 
-            OrderNode* log = askPool.top().second->next;
+            std::shared_ptr<OrderNode> log = askPool.top().second->next;
 
             if(log != nullptr)
             {
@@ -403,7 +403,7 @@ void PriceTimeLimitOrderBook::displayFinalState()
         while(!bidPool.empty())
         {
 
-            OrderNode* log = bidPool.top().second->next;
+            std::shared_ptr<OrderNode> log = bidPool.top().second->next;
 
             if(log != nullptr)
             {
