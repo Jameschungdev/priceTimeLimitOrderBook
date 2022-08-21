@@ -48,11 +48,13 @@ void PriceTimeLimitOrderBook::processInputLine(std::string inputLine)
         return;
     }
 
-    // TODO: Add for error handlers
-    // TODO: GTest for main functions.
-    /**
-     *  Valid numbers
-     * **/
+    // Check for valid integer in quantity and price inputs
+
+    if(isInputStringAnInt(inputParameters[3]) == false|| isInputStringAnInt(inputParameters[4]) == false)
+    {
+        std::cerr << "Input for quantity or price is not a real number. {" << inputParameters[3] << ',' << inputParameters[4] << "}, Input skipped.\n";
+        return;
+    }
 
     // Sort order to ASK/BID/DEL
 
@@ -534,4 +536,17 @@ int PriceTimeLimitOrderBook::getFirstAskOrderQuantityAtPrice(int price)
         }
     }
     return -1; // Not found.
+}
+
+// Checks if a string is an integer.
+
+bool PriceTimeLimitOrderBook::isInputStringAnInt(std::string input)
+{
+    for(char c : input)
+    {
+        if(std::isdigit(c) == false)
+            return false;
+    }
+
+    return true;
 }

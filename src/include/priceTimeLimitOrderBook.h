@@ -74,5 +74,6 @@ private:
                         std::greater<std::pair<int, std::shared_ptr<OrderNode>>>> askPool; 
     std::unordered_map<int, std::shared_ptr<OrderNode>> lastAskAtPrice;
 
+    bool isInputStringAnInt(std::string input);
     
 };
