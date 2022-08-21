@@ -18,10 +18,6 @@ class OrderNode
     public:
         OrderNode()
         {
-            bidOrAsk = 'E';
-            orderId = -1;
-            quantity = -1;
-            price = -1;
         }
 
         OrderNode(char bidOrAskInput, std::string orderIdInput, int quantityInput, int priceInput)
@@ -32,10 +28,10 @@ class OrderNode
             price = priceInput;
         }
 
-        char bidOrAsk; 
-        std::string orderId;
-        int quantity;
-        int price;
+        char bidOrAsk = 'U'; // Unassigned.
+        std::string orderId = "unassignedOrderId";
+        int quantity = -1;
+        int price = -1;
 
         std::shared_ptr<OrderNode> next = nullptr;
         std::shared_ptr<OrderNode> prev = nullptr;
@@ -70,6 +66,5 @@ private:
     std::unordered_map<int, std::shared_ptr<OrderNode>> lastAskAtPrice;
 
     void displayFinalState();
-
     
 };
