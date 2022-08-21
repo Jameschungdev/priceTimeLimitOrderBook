@@ -520,7 +520,7 @@ int PriceTimeLimitOrderBook::getFirstAskOrderQuantityAtPrice(int price)
 
     while (!askPoolCopy.empty())
     {
-        if (askPoolCopy.top().first < price)
+        if (askPoolCopy.top().first > price)
         {
             break;
         }
